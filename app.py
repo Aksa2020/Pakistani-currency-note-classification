@@ -56,8 +56,8 @@ def predict():
         audio_base64 = base64.b64encode(audio_bytes.read()).decode('utf-8')
 
         return jsonify({
-            'label': urdu_text,
-            'audio_base64': audio_base64
+            'audio_base64': audio_base64,
+            'label': urdu_text
         })
 
     except Exception as e:

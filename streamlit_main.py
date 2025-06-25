@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 from PIL import Image
-
+import base64
 # Read the public URL created by Flask
 try:
     with open("public_url.txt", "r") as f:
@@ -24,32 +24,60 @@ except Exception as e:
 st.title("💵 Pakistani Currency Note Detector")
 
 uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+
 if uploaded_image is not None:
     st.image(uploaded_image, caption="Uploaded Image", use_container_width=True)
-
     if st.button("Predict & Play Audio"):
         try:
-            # Send image to Flask API
-            result = requests.post(
-                f"{api_url}/prediction",
-                files={"image": uploaded_image}
-            )
-
+            result = requests.post(f"{api_url}/prediction", files={"image": uploaded_image})
             if result.status_code == 200:
-                # Save and play audio
-                with open("prediction.mp3", "wb") as f:
-                    f.write(result.content)
-                st.audio("prediction.mp3", format="audio/mp3")
+                result_json = result.json()
+                predicted_label = result_json.get("label", "")
+                audio_data = base64.b64decode(result_json.get("audio_base64", ""))
 
-                # ✅ Show predicted label text from response header
-                predicted_label = result.headers.get("X-Label", "🔍 No label returned")
                 if predicted_label:
-                    st.success(f"🔤 Predicted Label: {predicted_label}")
+                    st.markdown(f"🔤 **Predicted Label:** {predicted_label}")
+
+                if audio_data:
+                    with open("prediction.mp3", "wb") as f:
+                        f.write(audio_data)
+                    st.audio("prediction.mp3", format="audio/mp3")
+                else:
+                    st.warning("⚠️ Audio not received.")
             else:
                 st.error("❌ Prediction failed. Please try again.")
-
         except Exception as e:
             st.error(f"❌ Error during prediction: {e}")
+
+
+
+
+# if uploaded_image is not None:
+#     st.image(uploaded_image, caption="Uploaded Image", use_container_width=True)
+
+#     if st.button("Predict & Play Audio"):
+#         try:
+#             # Send image to Flask API
+#             result = requests.post(
+#                 f"{api_url}/prediction",
+#                 files={"image": uploaded_image}
+#             )
+
+#             if result.status_code == 200:
+#                 # Save and play audio
+#                 with open("prediction.mp3", "wb") as f:
+#                     f.write(result.content)
+#                 st.audio("prediction.mp3", format="audio/mp3")
+
+#                 # ✅ Show predicted label text from response header
+#                 predicted_label = result.headers.get("X-Label", "🔍 No label returned")
+#                 if predicted_label:
+#                     st.success(f"🔤 Predicted Label: {predicted_label}")
+#             else:
+#                 st.error("❌ Prediction failed. Please try again.")
+
+#         except Exception as e:
+#             st.error(f"❌ Error during prediction: {e}")
 
     # if st.button("Predict & Play Audio"):
     #     try:

@@ -42,7 +42,7 @@ if uploaded_image is not None:
                 st.audio("prediction.mp3", format="audio/mp3")
 
                 # ✅ Show predicted label text from response header
-                predicted_label = result.headers.get["X-Label"]
+                predicted_label = result.headers.get("X-Label", "🔍 No label returned")
                 if predicted_label:
                     st.success(f"🔤 Predicted Label: {predicted_label}")
             else:

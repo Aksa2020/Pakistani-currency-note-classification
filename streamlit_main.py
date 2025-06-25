@@ -24,31 +24,31 @@ except Exception as e:
 st.title("💵 Pakistani Currency Note Detector")
 
 uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
-
 if uploaded_image is not None:
     st.image(uploaded_image, caption="Uploaded Image", use_container_width=True)
+    
     if st.button("Predict & Play Audio"):
         try:
             result = requests.post(f"{api_url}/prediction", files={"image": uploaded_image})
             if result.status_code == 200:
                 result_json = result.json()
                 predicted_label = result_json.get("label", "")
-                audio_data = base64.b64decode(result_json.get("audio_base64", ""))
+                audio_base64 = result_json.get("audio_base64", "")
 
                 if predicted_label:
                     st.markdown(f"🔤 **Predicted Label:** {predicted_label}")
 
-                if audio_data:
+                if audio_base64:
+                    audio_binary = base64.b64decode(audio_base64)
                     with open("prediction.mp3", "wb") as f:
-                        f.write(audio_data)
+                        f.write(audio_binary)
                     st.audio("prediction.mp3", format="audio/mp3")
                 else:
-                    st.warning("⚠️ Audio not received.")
+                    st.warning("⚠️ No audio returned.")
             else:
-                st.error("❌ Prediction failed. Please try again.")
+                st.error(f"❌ Server error: {result.status_code}")
         except Exception as e:
             st.error(f"❌ Error during prediction: {e}")
-
 
 
 

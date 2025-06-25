@@ -27,16 +27,36 @@ uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"]
 if uploaded_image is not None:
     st.image(uploaded_image, caption="Uploaded Image", use_container_width=True)
     if st.button("Predict & Play Audio"):
-        try:
-            result = requests.post(
-                f"{api_url}/prediction",
-                files={"image": uploaded_image}
-            )
-            if result.status_code == 200:
-                with open("prediction.mp3", "wb") as f:
-                    f.write(result.content)
-                st.audio("prediction.mp3", format="audio/mp3")
-            else:
-                st.error("❌ Prediction failed. Try again.")
-        except Exception as e:
-            st.error(f"❌ Error during prediction: {e}")
+    try:
+        result = requests.post(
+            f"{api_url}/prediction",
+            files={"image": uploaded_image}
+        )
+        if result.status_code == 200:
+            # ✅ Save and play audio
+            with open("prediction.mp3", "wb") as f:
+                f.write(result.content)
+            st.audio("prediction.mp3", format="audio/mp3")
+
+            # ✅ Show text output from header
+            predicted_label = result.headers.get("X-Label", "")
+            if predicted_label:
+                st.success(f"🔤 Predicted Label: {predicted_label}")
+        else:
+            st.error("❌ Prediction failed. Try again.")
+    except Exception as e:
+        st.error(f"❌ Error during prediction: {e}")
+    # if st.button("Predict & Play Audio"):
+    #     try:
+    #         result = requests.post(
+    #             f"{api_url}/prediction",
+    #             files={"image": uploaded_image}
+    #         )
+    #         if result.status_code == 200:
+    #             with open("prediction.mp3", "wb") as f:
+    #                 f.write(result.content)
+    #             st.audio("prediction.mp3", format="audio/mp3")
+    #         else:
+    #             st.error("❌ Prediction failed. Try again.")
+        # except Exception as e:
+        #     st.error(f"❌ Error during prediction: {e}")

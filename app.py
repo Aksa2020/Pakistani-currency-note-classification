@@ -3,15 +3,10 @@ import requests
 from PIL import Image
 import os
 
-# Step 1: Read the public URL from Flask (created when Flask runs)
-try:
-    with open("public_url.txt", "r") as f:
-        api_url = f.read().strip()
-except FileNotFoundError:
-    st.error("❌ Flask app is not running. Please start it first.")
-    st.stop()
+# Read API URL from secrets
+api_url = st.secrets["flask_api_url"]
 
-# Step 2: Try a test call to see if model is loaded and reachable
+# Try to connect to the API
 try:
     response = requests.get(f"{api_url}/")
     if response.status_code == 200:

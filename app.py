@@ -18,7 +18,7 @@ with open("public_url.txt", "w") as f:
     f.write(public_url)
 
 # Load model
-model = YOLO("model/train15_best.pt")
+model = YOLO("best.pt")
 
 @app.route('/')
 def welcome():

@@ -15,7 +15,9 @@ uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"]
 
 if uploaded_image is not None:
     image = Image.open(uploaded_image)
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+    st.image(image, caption="Uploaded Image", use_container_width=True)
+
+    #st.image(image, caption="Uploaded Image", use_column_width=True)
 
     if st.button("Predict & Play Audio"):
         files = {"image": uploaded_image.getvalue()}

@@ -33,7 +33,6 @@ model = YOLO(model_path)
 @app.route('/')
 def welcome():
     return "✅ Flask API is up and model is loaded."
-
 @app.route('/prediction', methods=['POST'])
 def predict():
     if 'image' not in request.files:
@@ -42,21 +41,27 @@ def predict():
     try:
         image = Image.open(request.files['image'].stream)
         results = model.predict(image)
-
-        predicted_note_value = results[0].names[results[0].probs.top1]
-
-        if '_' in predicted_note_value:
-            predicted_note_value = predicted_note_value.split("_")[0]
-            model_output_text = f"{predicted_note_value} روپے"
+        label = results[0].names[results[0].probs.top1]
+        
+        if '_' in label:
+            label = label.split("_")[0]
+            urdu_text = f"{label} روپے"
         else:
-            model_output_text = "اِن ویلیڈ دوبارہ کوشش کریں"
+            urdu_text = "اِن ویلیڈ دوبارہ کوشش کریں"
 
-        # Text-to-speech
-        tts = gTTS(text=model_output_text, lang="ur")
-        audio_stream = BytesIO()
-        tts.write_to_fp(audio_stream)
-        audio_stream.seek(0)
+        tts = gTTS(text=urdu_text, lang='ur')
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
+        audio_base64 = base64.b64encode(audio_bytes.read()).decode('utf-8')
 
+        return jsonify({
+            'label': urdu_text,
+            'audio_base64': audio_base64
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
         # Convert audio to base64 string
         audio_base64 = base64.b64encode(audio_stream.read()).decode('utf-8')
 

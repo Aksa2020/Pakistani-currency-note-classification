@@ -4,7 +4,7 @@ from PIL import Image
 import os
 
 # Read API URL from secrets
-api_url = st.secrets["flask_api_url"]
+api_url = st.secrets["api_url"]
 
 # Try to connect to the API
 try:

@@ -57,7 +57,7 @@ def predict():
 
     # Return audio with text in header
     response = make_response(send_file(audio_stream, mimetype='audio/mp3'))
-    response.headers["X-Label"] = model_output_text  # send text output
+    response = make_response(response.headers["X-Label"](model_output_text, mimetype = "") # send text output
     return response
 
 # @app.route('/prediction', methods=['POST'])

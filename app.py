@@ -36,12 +36,11 @@ def welcome():
 @app.route('/prediction', methods=['POST'])
 def predict():
     if 'image' not in request.files:
-        return jsonify({'error': 'No image provided'})
+        return jsonify({'error': 'No image provided'}), 400
 
-    image = request.files['image']
-    image = Image.open(image.stream)
+    image = Image.open(request.files['image'].stream)
     results = model.predict(image)
-
+    
     predicted_note_value = results[0].names[results[0].probs.top1]
     
     if '_' in predicted_note_value:
@@ -50,15 +49,48 @@ def predict():
     else:
         model_output_text = "اِن ویلیڈ دوبارہ کوشش کریں"
 
+    # Generate audio
     tts = gTTS(text=model_output_text, lang="ur")
     audio_stream = BytesIO()
     tts.write_to_fp(audio_stream)
     audio_stream.seek(0)
 
-    # Return audio with text in header
-    response = make_response(send_file(audio_stream, mimetype='audio/mp3'))
-    response.headers["X-Label"] = model_output_text  # ✅ Correct way to attach text label
-    return response
+    # Encode audio as base64
+    audio_base64 = base64.b64encode(audio_stream.read()).decode("utf-8")
+
+    return jsonify({
+        "label": model_output_text,
+        "audio_base64": audio_base64
+    })
+
+
+
+# @app.route('/prediction', methods=['POST'])
+# def predict():
+#     if 'image' not in request.files:
+#         return jsonify({'error': 'No image provided'})
+
+#     image = request.files['image']
+#     image = Image.open(image.stream)
+#     results = model.predict(image)
+
+#     predicted_note_value = results[0].names[results[0].probs.top1]
+    
+#     if '_' in predicted_note_value:
+#         predicted_note_value = predicted_note_value.split("_")[0]
+#         model_output_text = f"{predicted_note_value} روپے"
+#     else:
+#         model_output_text = "اِن ویلیڈ دوبارہ کوشش کریں"
+
+#     tts = gTTS(text=model_output_text, lang="ur")
+#     audio_stream = BytesIO()
+#     tts.write_to_fp(audio_stream)
+#     audio_stream.seek(0)
+
+#     # Return audio with text in header
+#     response = make_response(send_file(audio_stream, mimetype='audio/mp3'))
+#     response.headers["X-Label"] = model_output_text  # ✅ Correct way to attach text label
+#     return response
 
 # @app.route('/prediction', methods=['POST'])
 # def predict():

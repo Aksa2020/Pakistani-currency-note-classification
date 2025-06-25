@@ -20,7 +20,7 @@ with open("public_url.txt", "w") as f:
 
 # Download model if not present
 model_path = "best.pt"
-drive_url = "https://drive.google.com/uc?id=YOUR_FILE_ID"  # ✅ Replace this with actual model file ID
+drive_url = "https://github.com/Aksa2020/Pakistani-currency-note-classification/blob/7f577d60ecbf52c2bd806ebab0cbf84e8d5b9ae0/best.pt"  # ✅ Replace this with actual model file ID
 if not os.path.exists(model_path):
     print("⏬ Downloading model from Google Drive...")
     gdown.download(drive_url, model_path, quiet=False)

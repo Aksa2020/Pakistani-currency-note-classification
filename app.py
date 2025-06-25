@@ -31,7 +31,6 @@ model = YOLO(model_path)
 @app.route('/')
 def welcome():
     return "✅ Flask API is up and model is loaded."
-
 @app.route('/prediction', methods=['POST'])
 def predict():
     if 'image' not in request.files:
@@ -48,12 +47,39 @@ def predict():
     else:
         model_output_text = "اِن ویلیڈ دوبارہ کوشش کریں"
 
+    # Convert to speech
     tts = gTTS(text=model_output_text, lang="ur")
     audio_stream = BytesIO()
     tts.write_to_fp(audio_stream)
     audio_stream.seek(0)
 
-    return send_file(audio_stream, mimetype='audio/mp3')
+    # ✅ Send text label in header
+    response = send_file(audio_stream, mimetype='audio/mp3')
+    response.headers["X-Label"] = model_output_text
+    return response
 
-print(f"✅ Public URL for prediction: {public_url}/prediction")
-app.run(port=port_no)
+# @app.route('/prediction', methods=['POST'])
+# def predict():
+#     if 'image' not in request.files:
+#         return jsonify({'error': 'No image provided'})
+
+#     image = request.files['image']
+#     image = Image.open(image.stream)
+#     results = model.predict(image)
+#     predicted_note_value = results[0].names[results[0].probs.top1]
+
+#     if '_' in predicted_note_value:
+#         predicted_note_value = predicted_note_value.split("_")[0]
+#         model_output_text = f"{predicted_note_value} روپے"
+#     else:
+#         model_output_text = "اِن ویلیڈ دوبارہ کوشش کریں"
+
+#     tts = gTTS(text=model_output_text, lang="ur")
+#     audio_stream = BytesIO()
+#     tts.write_to_fp(audio_stream)
+#     audio_stream.seek(0)
+
+#     return send_file(audio_stream, mimetype='audio/mp3')
+
+# print(f"✅ Public URL for prediction: {public_url}/prediction")
+# app.run(port=port_no)

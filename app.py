@@ -10,7 +10,7 @@ app = Flask(__name__)
 port_no = 5000
 
 # Set your NGROK token
-ngrok.set_auth_token("2eKELCCL3WBzNrI1pjqbc0H0uMY_3NoChfFaVsZAyy5HK9ENr")
+ngrok.set_auth_token("2yzjjShepI3rvFK5x43D2Xl90rD_9rsvPPnRXPedqpPgmfM7")
 public_url = ngrok.connect(port_no).public_url
 
 # Save the public URL to a file

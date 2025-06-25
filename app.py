@@ -7,6 +7,7 @@ from PIL import Image
 from ultralytics import YOLO
 import os
 import gdown
+import base64
 
 app = Flask(__name__)
 port_no = 5000
@@ -38,31 +39,34 @@ def predict():
     if 'image' not in request.files:
         return jsonify({'error': 'No image provided'}), 400
 
-    image = Image.open(request.files['image'].stream)
-    results = model.predict(image)
-    
-    predicted_note_value = results[0].names[results[0].probs.top1]
-    
-    if '_' in predicted_note_value:
-        predicted_note_value = predicted_note_value.split("_")[0]
-        model_output_text = f"{predicted_note_value} روپے"
-    else:
-        model_output_text = "اِن ویلیڈ دوبارہ کوشش کریں"
+    try:
+        image = Image.open(request.files['image'].stream)
+        results = model.predict(image)
 
-    # Generate audio
-    tts = gTTS(text=model_output_text, lang="ur")
-    audio_stream = BytesIO()
-    tts.write_to_fp(audio_stream)
-    audio_stream.seek(0)
+        predicted_note_value = results[0].names[results[0].probs.top1]
 
-    # Encode audio as base64
-    audio_base64 = base64.b64encode(audio_stream.read()).decode("utf-8")
+        if '_' in predicted_note_value:
+            predicted_note_value = predicted_note_value.split("_")[0]
+            model_output_text = f"{predicted_note_value} روپے"
+        else:
+            model_output_text = "اِن ویلیڈ دوبارہ کوشش کریں"
 
-    return jsonify({
-        "label": model_output_text,
-        "audio_base64": audio_base64
-    })
+        # Text-to-speech
+        tts = gTTS(text=model_output_text, lang="ur")
+        audio_stream = BytesIO()
+        tts.write_to_fp(audio_stream)
+        audio_stream.seek(0)
 
+        # Convert audio to base64 string
+        audio_base64 = base64.b64encode(audio_stream.read()).decode('utf-8')
+
+        return jsonify({
+            "label": model_output_text,
+            "audio_base64": audio_base64
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # @app.route('/prediction', methods=['POST'])
